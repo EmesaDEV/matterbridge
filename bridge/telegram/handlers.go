@@ -311,6 +311,11 @@ func (b *Btelegram) handleDownload(rmsg *config.Message, message *tgbotapi.Messa
 		b.maybeConvertWebp(&name, data)
 	}
 
+	// rename .oga to .ogg  https://github.com/42wim/matterbridge/issues/906#issuecomment-741793512
+	if strings.HasSuffix(name, ".oga") && message.Audio != nil {
+		name = strings.Replace(name, ".oga", ".ogg", 1)
+	}
+
 	helper.HandleDownloadData(b.Log, rmsg, name, message.Caption, "", data, b.General)
 	return nil
 }
@@ -384,7 +389,7 @@ func (b *Btelegram) handleUploadFile(msg *config.Message, chatid int64) string {
 			Name:  fi.Name,
 			Bytes: *fi.Data,
 		}
-		re := regexp.MustCompile(".(jpg|png)$")
+		re := regexp.MustCompile(".(jpg|jpe|png)$")
 		if re.MatchString(fi.Name) {
 			c = tgbotapi.NewPhotoUpload(chatid, file)
 		} else {

@@ -26,7 +26,10 @@ const (
 	EventAPIConnected      = "api_connected"
 	EventUserTyping        = "user_typing"
 	EventGetChannelMembers = "get_channel_members"
+	EventNoticeIRC         = "notice_irc"
 )
+
+const ParentIDNotFound = "msg-parent-not-found"
 
 type Message struct {
 	Text      string    `json:"text"`
@@ -42,6 +45,14 @@ type Message struct {
 	Timestamp time.Time `json:"timestamp"`
 	ID        string    `json:"id"`
 	Extra     map[string][]interface{}
+}
+
+func (m Message) ParentNotFound() bool {
+	return m.ParentID == ParentIDNotFound
+}
+
+func (m Message) ParentValid() bool {
+	return m.ParentID != "" && !m.ParentNotFound()
 }
 
 type FileInfo struct {
@@ -117,7 +128,7 @@ type Protocol struct {
 	NicksPerRow            int        // mattermost, slack
 	NoHomeServerSuffix     bool       // matrix
 	NoSendJoinPart         bool       // all protocols
-	NoTLS                  bool       // mattermost
+	NoTLS                  bool       // mattermost, xmpp
 	Password               string     // IRC,mattermost,XMPP,matrix
 	PrefixMessagesWithNick bool       // mattemost, slack
 	PreserveThreading      bool       // slack
@@ -154,7 +165,7 @@ type Protocol struct {
 	UseTLS                 bool       // IRC
 	UseDiscriminator       bool       // discord
 	UseFirstName           bool       // telegram
-	UseUserName            bool       // discord
+	UseUserName            bool       // discord, matrix
 	UseInsecureURL         bool       // telegram
 	VerboseJoinPart        bool       // IRC
 	WebhookBindAddress     string     // mattermost, slack
@@ -213,6 +224,7 @@ type BridgeValues struct {
 	WhatsApp           map[string]Protocol // TODO is this struct used? Search for "SlackLegacy" for example didn't return any results
 	Zulip              map[string]Protocol
 	Keybase            map[string]Protocol
+	Mumble             map[string]Protocol
 	General            Protocol
 	Tengo              Tengo
 	Gateway            []Gateway
