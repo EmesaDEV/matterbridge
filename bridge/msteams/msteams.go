@@ -133,11 +133,17 @@ func (b *Bmsteams) getReplies(channel string, msg msgraph.ChatMessage) ([]msgrap
 
 func (b *Bmsteams) getMessages(channel string) ([]msgraph.ChatMessage, error) {
 	ct := b.gc.Teams().ID(b.GetString("TeamID")).Channels().ID(channel).Messages().Request()
+	ct.Top(20)
+	b.Log.Debugf("calling url: %s", ct.URL())
 	rct, err := ct.Get(b.ctx)
 	if err != nil {
 		return nil, err
 	}
 	b.Log.Debugf("got %#v messages", len(rct))
+	if (len(rct) > 20) {
+		rct = rct[:20]
+		b.Log.Debug("but only processing the last 20")
+	}
 	for _, msg := range rct {
 		replyct, replyerr := b.getReplies(channel, msg)
 		if replyerr != nil {
