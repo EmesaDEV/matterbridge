@@ -133,7 +133,9 @@ func (b *Bmsteams) getReplies(channel string, msg msgraph.ChatMessage) ([]msgrap
 
 func (b *Bmsteams) getMessages(channel string) ([]msgraph.ChatMessage, error) {
 	ct := b.gc.Teams().ID(b.GetString("TeamID")).Channels().ID(channel).Messages().Request()
-	rct, err := ct.Get(b.ctx)
+	ct.Top(20)
+	b.Log.Debugf("calling url: %s", ct.URL())
+	rct, err := ct.GetN(b.ctx, 1)
 	if err != nil {
 		return nil, err
 	}
