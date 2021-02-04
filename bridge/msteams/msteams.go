@@ -140,7 +140,7 @@ func (b *Bmsteams) getMessages(channel string) ([]msgraph.ChatMessage, error) {
 		return nil, err
 	}
 	b.Log.Debugf("got %#v messages", len(rct))
-	if (len(rct) > 20) {
+	if len(rct) > 20 {
 		rct = rct[:20]
 		b.Log.Debug("but only processing the last 20")
 	}
